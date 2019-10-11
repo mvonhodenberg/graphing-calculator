@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title> Graphing calculator </title>
+<script src="martinsfunctions.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/nerdamer.core.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Algebra.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Calculus.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Solve.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.2.2/math.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.2.2/math.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.2.2/math.min.map"></script>
+<link rel='icon' href='graphicon.ico' type='image/x-icon'/ >
+<link rel="stylesheet" type="text/css" href="graphing.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto" rel="stylesheet">
+</head>
+<body>
+<div class="topbar">
+	<a href="index.html">Home</a>
+	<a href="settings.html">Settings</a>
+	<a href="about.html">About</a>
+</div>
+<div class="inputs">
+<input type="color" value="#C23B23" id="c1" onchange="DrawLine()"><p class="equationinputs"> f(x) = </p><input type="text" id="eq1" oninput="DrawLine()" onchange="DrawLine()"><p  id="d1" class="derivative" style="display:none;"></p><br>
+<input type="color" value="#03C03C" id="c2" onchange="DrawLine()"><p class="equationinputs"> g(x) = </p><input type="text" id="eq2" oninput="DrawLine()" onchange="DrawLine()"><p  id="d2" class="derivative" style="display:none;"></p><br>
+<input type="color" value="#579ABE" id="c3" onchange="DrawLine()"><p class="equationinputs"> h(x) = </p><input type="text" id="eq3" oninput="DrawLine()" onchange="DrawLine()"><p  id="d3" class="derivative" style="display:none;"></p><br>
+<input type="color" value="#976ED7" id="c4" onchange="DrawLine()"><p class="equationinputs"> i(x) = </p><input type="text" id="eq4" oninput="DrawLine()" onchange="DrawLine()"><p  id="d4" class="derivative" style="display:none;"></p>
+<p>Your current mode is:</p>
+<p class="largeaqua" id="currentmode"></p>
+<p id="currentmodeinfo"></p>
+<p>Visit settings to change it.</p>
+<p>The constants ℮ and π are supported.</p>
+</div>
+<div class="gspace" onwheel="getScale(event);DrawLine()">
+<canvas id="thecanvas" onmouseover="document.body.style.overflow='hidden';"  onmouseout="document.body.style.overflow='auto';" width=720; height="720" style="border:1px solid #000000;">Your browser does not support the canvas tag.</canvas>
+</div>
+<div id="buttondiv">
+<button onclick="resetZoom()" class="bottombutton">Reset axes</button>
+<button onclick="ShowDerivatives()" id="showderivatives" class="bottombutton">Show derivatives</button>
+</div>
+<div class="rootsdiv">
+<table>
+  <tr>
+    <th>Roots of f(x)</th>
+    <th>Roots of g(x)</th>
+    <th>Roots of h(x)</th>
+	<th>Roots of i(x)</th>
+  </tr>
+  <tr>
+    <td id="rootcontainer1">No integer roots found</td>
+	<td id="rootcontainer2">No integer roots found</td>
+	<td id="rootcontainer3">No integer roots found</td>
+	<td id="rootcontainer4">No integer roots found</td>
+  </tr>
+</table>
+</div>
+<div id="test">
+</div>
+<div id="test2">
+</div>
+<script>
+var c = document.getElementById("thecanvas");
+var ctx = c.getContext("2d");
+var colors = ["", "", "",""];
+var strippedfunctions=[]
+var strippedfunctions2=[]
+var roots=[]
+var scale = 10
+var currentPos=[0,0]
+var angleUnits="radians"
+var renderdensity = 0.1
+var derivatives=[]
+function PlotRoots(){
+	roots=[]
+	for (i=0;i<4;i+=1){
+		try{
+			if(strippedfunctions2[i]==0){
+				var root = ["n/a"];
+			}else{
+				var root = nerdamer.solve(strippedfunctions2[i], 'x').toString();
+				root = root.substr(1);
+				root = root.substring(0, root.length - 1);
+				root = root.split(",");
+				for (j=0;j<root.length;j+=1){
+					if (root[j].includes("i")==true || root[j].includes("/")==true){
+						root.splice(j, 1);
+						
+					}
+				}
+			}
+		}
+		catch(err) {
+			var root = ["n/a"];
+		}
+		roots.push(root)
+	}
+	for (k=0;k<4;k+=1){
+		eqroots=roots[k];
+		if (eqroots[0]=="n/a"){
+		}
+		else{
+			for (l=0;l<eqroots.length;l+=1){
+				var xpos = 360+(720/scale)*(Round(eqroots[l])-currentPos[0]);
+				var xaxispos = 360-(720/scale)*(-currentPos[1]);
+				ctx.beginPath();
+				ctx.arc(xpos, xaxispos, 5, 0, 2 * Math.PI, false);
+				ctx.fillStyle = '#f3f3f3';
+				ctx.fill();
+				ctx.lineWidth = 2;
+				ctx.strokeStyle = '#000000';
+				ctx.stroke();
+			}
+		}
+	}
+	rootstext=[];
+	for (m=0;m<4;m+=1){
+		textroots=roots[m];
+		textfortable=""
+		for (n=0;n<textroots.length;n+=1){
+			if (textroots[n] != "n/a" && textroots[n].includes("i")==false && textroots[n].includes("/")==false){
+				textfortable = textfortable + String(textroots[n]);
+				if (n != textroots.length-1){
+					textfortable = textfortable + ", ";
+				}
+			}
+		}
+		rootstext.push(textfortable)
+	}
+	document.getElementById("test").innerHTML=rootstext;
+	if(rootstext[0]!=""){
+		document.getElementById("rootcontainer1").innerHTML=rootstext[0];
+	}else{
+		document.getElementById("rootcontainer1").innerHTML="No integer roots found";
+	}
+	if(rootstext[1]!=""){
+		document.getElementById("rootcontainer2").innerHTML=rootstext[1];
+	}else{
+		document.getElementById("rootcontainer2").innerHTML="No integer roots found";
+	}
+	if(rootstext[2]!=""){
+		document.getElementById("rootcontainer3").innerHTML=rootstext[2];
+	}else{
+		document.getElementById("rootcontainer3").innerHTML="No integer roots found";
+	}
+	if(rootstext[3]!=""){
+		document.getElementById("rootcontainer4").innerHTML=rootstext[3];
+	}else{
+		document.getElementById("rootcontainer4").innerHTML="No integer roots found";
+	}
+}
+function GetDerivatives(){
+	derivatives=[]
+	strippedfunctions2=[]
+	for (i=0;i<4;i+=1){
+		a=strippedfunctions[i].split("**").join("^");
+		a=a.split("Math.E").join("e");
+		a=a.split("Math.PI").join("pi");
+		strippedfunctions2.push(a)
+		try {
+			b=math.derivative(a, 'x').toString()
+		}
+		catch(err) {
+			b="Not valid"
+		}
+		derivatives.push(b)
+	}
+	document.getElementById("d1").innerHTML ="f'(x) = "+derivatives[0];
+	document.getElementById("d2").innerHTML ="g'(x) = "+derivatives[1];
+	document.getElementById("d3").innerHTML ="h'(x) = "+derivatives[2];
+	document.getElementById("d4").innerHTML ="i'(x) = "+derivatives[3];	
+}
+function ShowDerivatives(){
+	var x = document.getElementById("d1");
+	if (x.style.display === "none"){
+		document.getElementById("showderivatives").innerHTML ="Hide derivatives"
+		d1.style.display = "inline-block";
+		d2.style.display = "inline-block";
+		d3.style.display = "inline-block";
+		d4.style.display = "inline-block";
+	}
+	else{
+		document.getElementById("showderivatives").innerHTML ="Show derivatives"
+		d1.style.display = "none";
+		d2.style.display = "none";
+		d3.style.display = "none";
+		d4.style.display = "none";
+	}
+}
+function gettheMode(){
+	z = sessionStorage.getItem("mode");
+
+	if (z=="1") {
+	  themode=1
+	}
+	if (z=="2") {
+	  themode=2
+	}
+	else{
+		themode=1
+	}
+	return themode
+}
+function updateColors(){
+	c1 = String(document.getElementById("c1").value);
+	c2 = String(document.getElementById("c2").value);
+	c3 = String(document.getElementById("c3").value);
+	c4 = String(document.getElementById("c4").value);
+	colors[0]=c1
+	colors[1]=c2
+	colors[2]=c3
+	colors[3]=c4
+	
+}
+function StripText(){
+	strippedfunctions=[]
+	var exceptioncharacters = ["*", "+", "-","/",".","(",")"];
+	var ids=["eq1","eq2","eq3","eq4"]
+	for (i = 0; i <= 3; i+=1){
+		var funcname = document.getElementById(ids[i]).value;
+		funcname=funcname.split("^").join("**");
+		var f = funcname.split("");
+		for(j = 0; j < (f.length-1); j+=1)
+			{
+				if (isNaN(f[j])==false && isNaN(f[j+1])==true && exceptioncharacters.includes(f[j+1])==false){
+					f.splice(j+1, 0, "*");
+					j+=1;
+				}
+			}
+		funcname="";
+		for(k = 0; k < f.length; k+=1)
+			{
+				funcname = funcname +f[k];
+			}
+		funcname=funcname.split("℮").join("Math.E");
+		funcname=funcname.split("π").join("Math.PI");
+		funcname=funcname.split("pi").join("Math.PI");
+		strippedfunctions.push(funcname);
+	}
+}
+function GetFunc1(x){
+    return eval(strippedfunctions[0]);
+}
+function GetFunc2(x){
+    return eval(strippedfunctions[1]);
+}
+function GetFunc3(x){
+    return eval(strippedfunctions[2]);
+}
+function GetFunc4(x){
+    return eval(strippedfunctions[3]);
+}
+function GetSettings(){
+    if (gettheMode()==1){
+		document.getElementById("currentmode").innerHTML="Cartesian";
+		document.getElementById("currentmodeinfo").innerHTML="This is the default coordinate system, where f(x) is plotted on the y-axis as x varies.";
+	}
+	if (gettheMode()==2){
+		document.getElementById("currentmode").innerHTML="Polar";
+		document.getElementById("currentmodeinfo").innerHTML="This is a different coordinate system, where f(x) is plotted as a distance from (0,0) as the angle x varies.";
+	}
+	f = sessionStorage.getItem("angleunits");
+	if (f=="1") {
+	  angleUnits="radians"
+	}
+	if (f=="2") {
+	  angleUnits="degrees"
+	}
+	g = sessionStorage.getItem("lowspec");
+	if (g=="0") {
+	  renderdensity=0.1
+	}
+	if (g=="1") {
+	  renderdensity=0.5
+	}
+	updateColors()
+}
+function DrawAxes(){
+	yaxis=360+(720/scale)*(-currentPos[0]);
+	xaxis=360-(720/scale)*(-currentPos[1]);
+	ctx.beginPath();
+	ctx.strokeStyle = "black";
+	if (xaxis>20){
+		ctx.moveTo(yaxis, 0);
+		ctx.lineTo(yaxis-10, 10);
+		ctx.stroke();
+		ctx.moveTo(yaxis, 0);
+		ctx.lineTo(yaxis+10, 10);
+		ctx.stroke();
+	}
+	if (yaxis<700){
+		ctx.moveTo(720, xaxis);
+		ctx.lineTo(710, xaxis-10);
+		ctx.stroke();
+		ctx.moveTo(720, xaxis);
+		ctx.lineTo(710, xaxis+10);
+		ctx.stroke();
+	}
+	ctx.closePath();
+	ctx.beginPath();
+	totalscale=0
+	logscale = Math.log10(scale);
+	a = parseFloat(logscale.toFixed(1));
+	b=Math.ceil(a);
+	if ((10**a)<((10**b)/2)){
+		totalscale=((10**b)/2);
+	}else{
+		totalscale=(10**b);
+	}
+	
+	for(i = (-totalscale+currentPos[1]); i <= (totalscale+currentPos[1]); i+=totalscale/10){
+		ctx.strokeStyle = "#d3d3d3";
+		y=(360-(720/scale)*(i-currentPos[1]))
+		ctx.moveTo(0,y);
+		ctx.lineTo(720,y);
+		ctx.font = "12px Arial";
+		ctx.fillStyle = "black";
+		ctx.fillText(Round(i), yaxis-15, y+15);
+		ctx.stroke();
+	}
+	for(i = (-totalscale+currentPos[0]); i <= (totalscale+currentPos[0]); i+=totalscale/10){
+		ctx.strokeStyle = "#d3d3d3";
+		x=(360+(720/scale)*(i-currentPos[0]))
+		ctx.moveTo(x,0);
+		ctx.lineTo(x,720);
+		ctx.font = "12px Arial";
+		ctx.fillStyle = "black";
+		ctx.fillText(Round(i), x-15, xaxis+15);
+		ctx.stroke();
+	}
+	
+	
+	ctx.beginPath();
+	ctx.rect(yaxis, 0, 1, 720);
+	ctx.rect(0,xaxis, 720, 1);
+	ctx.fillStyle = "black";
+	ctx.fill();
+	ctx.closePath();
+}
+document.onkeydown = function move(e){
+    switch (e.keyCode) {
+        case 37:
+            currentPos[0]=currentPos[0]-(0.1*scale);
+			break;
+        case 38:
+            currentPos[1]=currentPos[1]+(0.1*scale);
+			break;
+        case 39:
+            currentPos[0]=currentPos[0]+(0.1*scale);
+			break;
+        case 40:
+            currentPos[1]=currentPos[1]-(0.1*scale);
+			break;
+    }
+	DrawLine();
+}
+function getScale(event){
+	var y = event.deltaY;
+	if (y > 0) {
+		scale = scale*10;
+	} else {
+		scale = scale/10;
+	}
+}
+function DrawLine(){
+	ClearSpace();
+	StripText();
+	GetDerivatives();
+	GetSettings();
+	DrawAxes();
+    k = (renderdensity/720)*scale;
+	if (gettheMode()==1){
+		for(i = (-scale+currentPos[0]); i < (scale+currentPos[0]); i+=k)
+			{
+				var x = 360+(720/scale)*(i-currentPos[0]);
+				var y1 = 360-(720/scale)*(GetFunc1(i)-currentPos[1]);
+				var y2 = 360-(720/scale)*(GetFunc2(i)-currentPos[1]);
+				var y3 = 360-(720/scale)*(GetFunc3(i)-currentPos[1]);
+				var y4 = 360-(720/scale)*(GetFunc4(i)-currentPos[1]);
+				ctx.fillStyle = colors[0];
+				ctx.fillRect( x, y1, 1, 1 );
+				ctx.fillStyle = colors[1];
+				ctx.fillRect( x, y2, 1, 1 );
+				ctx.fillStyle = colors[2];
+				ctx.fillRect( x, y3, 1, 1 );
+				ctx.fillStyle = colors[3];
+				ctx.fillRect( x, y4, 1, 1 );	
+			}
+	}
+	
+	if (gettheMode()==2){
+		for(i = (0); i < (6*Math.PI); i+=0.005)
+			{
+				var x1 = 360+(720/scale)*((GetFunc1(i)*Math.cos(i))-currentPos[0]);
+				var x2 = 360+(720/scale)*((GetFunc2(i)*Math.cos(i))-currentPos[0]);
+				var x3 = 360+(720/scale)*((GetFunc3(i)*Math.cos(i))-currentPos[0]);
+				var x4 = 360+(720/scale)*((GetFunc4(i)*Math.cos(i))-currentPos[0]);
+				var y1 = 360-(720/scale)*((GetFunc1(i)*Math.sin(i))-currentPos[1]);
+				var y2 = 360-(720/scale)*((GetFunc2(i)*Math.sin(i))-currentPos[1]);
+				var y3 = 360-(720/scale)*((GetFunc3(i)*Math.sin(i))-currentPos[1]);
+				var y4 = 360-(720/scale)*((GetFunc4(i)*Math.sin(i))-currentPos[1]);
+				ctx.fillStyle = colors[0];
+				ctx.fillRect( x1, y1, 1, 1 );
+				ctx.fillStyle = colors[1];
+				ctx.fillRect( x2, y2, 1, 1 );
+				ctx.fillStyle = colors[2];
+				ctx.fillRect( x3, y3, 1, 1 );
+				ctx.fillStyle = colors[3];
+				ctx.fillRect( x4, y4, 1, 1 );	
+			}
+	}
+	PlotRoots();
+}
+function ClearSpace(){
+	ctx.clearRect(0, 0, 720, 720);
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, 720, 720);
+}
+function resetZoom(){
+	scale = 10;
+	currentPos=[0,0];
+	DrawLine();
+}
+document.getElementById("test").innerHTML="";
+document.getElementById("test2").innerHTML="";
+DrawLine()
+</script>
+</body>
+</html>
