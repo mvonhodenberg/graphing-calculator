@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title> Settings </title>
+<link rel='icon' href='graphicon.ico' type='image/x-icon'/ >
+<link rel="stylesheet" type="text/css" href="graphing.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto" rel="stylesheet">
+</head>
+<body>
+<div class="topbar">
+	<a href="index.html">Home</a>
+	<a href="settings.html">Settings</a>
+	<a href="about.html">About</a>
+</div>
+<div class="centeredbox">
+<form method="get" action="graphing.html">
+<h4>Mode of input:</h4>
+<input type="radio" id="m1" name="mode" value="1" checked> Cartesian<br>
+<input type="radio" id="m2" name="mode" value="2" > Polar<br><br>
+<h4>Angle units:</h4>
+<input type="radio" id="a1" name="angle" value="1" checked> Radians<br>
+<input type="radio" id="a2" name="angle" value="2" > Degrees<br><br>
+<h4>Low spec mode (for slower computers)<input type="checkbox" id="lowspec"></h4><br>
+<button type="submit" onclick="saveSettings()" id="settingsbutton">Save</button>
+</form>
+</div>
+<script>
+function saveSettings(){
+	if (document.getElementById('m1').checked) {
+		sessionStorage.setItem("mode", "1");
+	}
+	if (document.getElementById('m2').checked) {
+	  sessionStorage.setItem("mode", "2");
+	}
+	
+	if (document.getElementById('a1').checked) {
+		sessionStorage.setItem("angleunits", "1");
+	}
+	if (document.getElementById('a2').checked) {
+	  sessionStorage.setItem("angleunits", "2");
+	}
+	if (document.getElementById('lowspec').checked==false) {
+	  sessionStorage.setItem("lowspec", "0");
+	}
+	if (document.getElementById('lowspec').checked) {
+	  sessionStorage.setItem("lowspec", "1");
+	}
+	
+}
+function initialiseSettings(){
+	if (sessionStorage.getItem("mode")=="1") {
+		document.getElementById('m1').checked=true;
+	}
+	if (sessionStorage.getItem("mode")=="2") {
+	  document.getElementById('m2').checked=true;
+	}
+	
+	if (sessionStorage.getItem("angleunits")=="1") {
+	  document.getElementById('a1').checked=true;
+	}
+	if (sessionStorage.getItem("angleunits")=="2") {
+	  document.getElementById('a2').checked=true;
+	}
+	if (sessionStorage.getItem("lowspec")=="0") {
+	  document.getElementById('lowspec').checked=false;
+	}
+	if (sessionStorage.getItem("lowspec")=="1") {
+	  document.getElementById('lowspec').checked=true;
+	}
+}
+initialiseSettings()
+</script>
+</body>
+</html>
