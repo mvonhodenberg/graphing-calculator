@@ -4,10 +4,6 @@
 <meta charset="utf-8"/>
 <title> Graphing calculator </title>
 <script src="martinsfunctions.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/nerdamer.core.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Algebra.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Calculus.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Solve.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.2.2/math.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.2.2/math.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.2.2/math.min.map"></script>
@@ -22,15 +18,15 @@
 	<a href="about.html">About</a>
 </div>
 <div class="inputs">
-<input type="color" value="#C23B23" id="c1" onchange="DrawLine()"><p class="equationinputs"> f(x) = </p><input type="text" id="eq1" oninput="DrawLine()" onchange="DrawLine()"><p  id="d1" class="derivative" style="display:none;"></p><br>
-<input type="color" value="#03C03C" id="c2" onchange="DrawLine()"><p class="equationinputs"> g(x) = </p><input type="text" id="eq2" oninput="DrawLine()" onchange="DrawLine()"><p  id="d2" class="derivative" style="display:none;"></p><br>
-<input type="color" value="#579ABE" id="c3" onchange="DrawLine()"><p class="equationinputs"> h(x) = </p><input type="text" id="eq3" oninput="DrawLine()" onchange="DrawLine()"><p  id="d3" class="derivative" style="display:none;"></p><br>
-<input type="color" value="#976ED7" id="c4" onchange="DrawLine()"><p class="equationinputs"> i(x) = </p><input type="text" id="eq4" oninput="DrawLine()" onchange="DrawLine()"><p  id="d4" class="derivative" style="display:none;"></p>
+<input type="color" value="#C23B23" id="c1" onchange="DrawLine()"><p class="equationinputs"> f(x) = </p><input type="text" class="equationinputs" id="eq1" oninput="DrawLine()" onchange="DrawLine()" placeholder="Enter your function here"><p  id="d1" class="equationinputs" style="display:none;"></p><br>
+<input type="color" value="#03C03C" id="c2" onchange="DrawLine()"><p class="equationinputs"> g(x) = </p><input type="text" class="equationinputs" id="eq2" oninput="DrawLine()" onchange="DrawLine()" placeholder="Enter your function here"><p  id="d2" class="equationinputs" style="display:none;"></p><br>
+<input type="color" value="#579ABE" id="c3" onchange="DrawLine()"><p class="equationinputs"> h(x) = </p><input type="text" class="equationinputs" id="eq3" oninput="DrawLine()" onchange="DrawLine()" placeholder="Enter your function here"><p  id="d3" class="equationinputs" style="display:none;"></p><br>
+<input type="color" value="#976ED7" id="c4" onchange="DrawLine()"><p class="equationinputs"> i(x) = </p><input type="text" class="equationinputs" id="eq4" oninput="DrawLine()" onchange="DrawLine()" placeholder="Enter your function here"><p  id="d4" class="equationinputs" style="display:none;"></p>
 <p>Your current mode is:</p>
 <p class="largeaqua" id="currentmode"></p>
 <p id="currentmodeinfo"></p>
 <p>Visit settings to change it.</p>
-<p>The constants ℮ and π are supported.</p>
+<p>The constants π,℮ and Φ are supported. Copy and paste them into the textbox to use them.</p>
 </div>
 <div class="gspace" onwheel="getScale(event);DrawLine()">
 <canvas id="thecanvas" onmouseover="document.body.style.overflow='hidden';"  onmouseout="document.body.style.overflow='auto';" width=720; height="720" style="border:1px solid #000000;">Your browser does not support the canvas tag.</canvas>
@@ -48,10 +44,10 @@
 	<th>Roots of i(x)</th>
   </tr>
   <tr>
-    <td id="rootcontainer1">No integer roots found</td>
-	<td id="rootcontainer2">No integer roots found</td>
-	<td id="rootcontainer3">No integer roots found</td>
-	<td id="rootcontainer4">No integer roots found</td>
+    <td id="rootcontainer1">No roots found</td>
+	<td id="rootcontainer2">No roots found</td>
+	<td id="rootcontainer3">No roots found</td>
+	<td id="rootcontainer4">No roots found</td>
   </tr>
 </table>
 </div>
@@ -63,91 +59,84 @@
 var c = document.getElementById("thecanvas");
 var ctx = c.getContext("2d");
 var colors = ["", "", "",""];
-var strippedfunctions=[]
-var strippedfunctions2=[]
-var roots=[]
+var strippedfunctions=[] /* holds the functions after the input has been validated */
+var roots=[] /* contains roots for each function */
 var scale = 10
-var currentPos=[0,0]
+var currentPos=[0,0] /* contains position on graph, only 2 float values */
 var angleUnits="radians"
-var renderdensity = 0.1
-var derivatives=[]
-function PlotRoots(){
+var renderdensity = 0.5
+var derivatives=[] /* holds derivatives for each function */
+function FindRoots(){
 	roots=[]
-	for (i=0;i<4;i+=1){
-		try{
-			if(strippedfunctions2[i]==0){
-				var root = ["n/a"];
-			}else{
-				var root = nerdamer.solve(strippedfunctions2[i], 'x').toString();
-				root = root.substr(1);
-				root = root.substring(0, root.length - 1);
-				root = root.split(",");
-				for (j=0;j<root.length;j+=1){
-					if (root[j].includes("i")==true || root[j].includes("/")==true){
-						root.splice(j, 1);
-						
-					}
-				}
+	roots1=[]
+	for (i=-scale;i<scale;i+=scale/100){
+		i=Round(i);
+		if (GetFunc1(i)==0){
+			roots1.push(i);
+			PlotRoots(i);
 			}
-		}
-		catch(err) {
-			var root = ["n/a"];
-		}
-		roots.push(root)
 	}
-	for (k=0;k<4;k+=1){
-		eqroots=roots[k];
-		if (eqroots[0]=="n/a"){
-		}
-		else{
-			for (l=0;l<eqroots.length;l+=1){
-				var xpos = 360+(720/scale)*(Round(eqroots[l])-currentPos[0]);
-				var xaxispos = 360-(720/scale)*(-currentPos[1]);
-				ctx.beginPath();
-				ctx.arc(xpos, xaxispos, 5, 0, 2 * Math.PI, false);
-				ctx.fillStyle = '#f3f3f3';
-				ctx.fill();
-				ctx.lineWidth = 2;
-				ctx.strokeStyle = '#000000';
-				ctx.stroke();
+	roots.push(roots1);
+	roots1=[]
+	for (j=-scale;j<scale;j+=scale/100){
+		j=Round(j);
+		if (GetFunc2(j)==0){
+			roots1.push(j);
+			PlotRoots(j);
 			}
-		}
 	}
-	rootstext=[];
-	for (m=0;m<4;m+=1){
-		textroots=roots[m];
-		textfortable=""
-		for (n=0;n<textroots.length;n+=1){
-			if (textroots[n] != "n/a" && textroots[n].includes("i")==false && textroots[n].includes("/")==false){
-				textfortable = textfortable + String(textroots[n]);
-				if (n != textroots.length-1){
-					textfortable = textfortable + ", ";
-				}
+	roots.push(roots1);
+	roots1=[]
+	for (k=-scale;k<scale;k+=scale/100){
+		k=Round(k);
+		if (GetFunc3(k)==0){
+			roots1.push(k);
+			PlotRoots(k);
 			}
-		}
-		rootstext.push(textfortable)
 	}
-	document.getElementById("test").innerHTML=rootstext;
-	if(rootstext[0]!=""){
-		document.getElementById("rootcontainer1").innerHTML=rootstext[0];
+	roots.push(roots1);
+	roots1=[]
+	for (l=-scale;l<scale;l+=scale/100){
+		l=Round(l);
+		if (GetFunc4(l)==0){
+			roots1.push(l)
+			PlotRoots(l);
+			}
+	}
+	roots.push(roots1);
+	roots1=[]
+	if(roots[0]!=""){
+		document.getElementById("rootcontainer1").innerHTML=roots[0];
 	}else{
-		document.getElementById("rootcontainer1").innerHTML="No integer roots found";
+		document.getElementById("rootcontainer1").innerHTML="No roots found";
 	}
-	if(rootstext[1]!=""){
-		document.getElementById("rootcontainer2").innerHTML=rootstext[1];
+	if(roots[1]!=""){
+		document.getElementById("rootcontainer2").innerHTML=roots[1];
 	}else{
-		document.getElementById("rootcontainer2").innerHTML="No integer roots found";
+		document.getElementById("rootcontainer2").innerHTML="No roots found";
 	}
-	if(rootstext[2]!=""){
-		document.getElementById("rootcontainer3").innerHTML=rootstext[2];
+	if(roots[2]!=""){
+		document.getElementById("rootcontainer3").innerHTML=roots[2];
 	}else{
-		document.getElementById("rootcontainer3").innerHTML="No integer roots found";
+		document.getElementById("rootcontainer3").innerHTML="No roots found";
 	}
-	if(rootstext[3]!=""){
-		document.getElementById("rootcontainer4").innerHTML=rootstext[3];
+	if(roots[3]!=""){
+		document.getElementById("rootcontainer4").innerHTML=roots[3];
 	}else{
-		document.getElementById("rootcontainer4").innerHTML="No integer roots found";
+		document.getElementById("rootcontainer4").innerHTML="No roots found";
 	}
+}
+function PlotRoots(r){
+	var xpos = 360+(720/scale)*(Round(r)-currentPos[0]);
+	var xaxispos = 360-(720/scale)*(-currentPos[1]);
+	ctx.beginPath();
+	ctx.arc(xpos, xaxispos, 5, 0, 2 * Math.PI, false);
+	ctx.fillStyle = '#f3f3f3';
+	ctx.fill();
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = '#000000';
+	ctx.stroke();
+	ctx.closePath();
 }
 function GetDerivatives(){
 	derivatives=[]
@@ -156,7 +145,6 @@ function GetDerivatives(){
 		a=strippedfunctions[i].split("**").join("^");
 		a=a.split("Math.E").join("e");
 		a=a.split("Math.PI").join("pi");
-		strippedfunctions2.push(a)
 		try {
 			b=math.derivative(a, 'x').toString()
 		}
@@ -215,6 +203,8 @@ function updateColors(){
 function StripText(){
 	strippedfunctions=[]
 	var exceptioncharacters = ["*", "+", "-","/",".","(",")"];
+	var constants = ["℮", "π","Φ"];
+	var bannedcharacters = [";", "=", "{","}","[","]","?","$"];
 	var ids=["eq1","eq2","eq3","eq4"]
 	for (i = 0; i <= 3; i+=1){
 		var funcname = document.getElementById(ids[i]).value;
@@ -222,9 +212,16 @@ function StripText(){
 		var f = funcname.split("");
 		for(j = 0; j < (f.length-1); j+=1)
 			{
-				if (isNaN(f[j])==false && isNaN(f[j+1])==true && exceptioncharacters.includes(f[j+1])==false){
+				if ((isNaN(f[j])==false || constants.includes(f[j])==true) && isNaN(f[j+1])==true && exceptioncharacters.includes(f[j+1])==false){
 					f.splice(j+1, 0, "*");
 					j+=1;
+				}
+			}
+		for(k = 0; k < (f.length-1); k+=1)
+			{	
+			if (bannedcharacters.includes(f[k])==true){
+					f.splice(k, 1);
+					k+=1;
 				}
 			}
 		funcname="";
@@ -234,7 +231,7 @@ function StripText(){
 			}
 		funcname=funcname.split("℮").join("Math.E");
 		funcname=funcname.split("π").join("Math.PI");
-		funcname=funcname.split("pi").join("Math.PI");
+		funcname=funcname.split("Φ").join("((1+Math.sqrt(5))/2)");
 		strippedfunctions.push(funcname);
 	}
 }
@@ -268,7 +265,7 @@ function GetSettings(){
 	}
 	g = sessionStorage.getItem("lowspec");
 	if (g=="0") {
-	  renderdensity=0.1
+	  renderdensity=0.25
 	}
 	if (g=="1") {
 	  renderdensity=0.5
@@ -308,7 +305,7 @@ function DrawAxes(){
 		totalscale=(10**b);
 	}
 	
-	for(i = (-totalscale+currentPos[1]); i <= (totalscale+currentPos[1]); i+=totalscale/10){
+	for(i = (-totalscale+currentPos[1]); i <= (totalscale+currentPos[1]); i+=totalscale/20){
 		ctx.strokeStyle = "#d3d3d3";
 		y=(360-(720/scale)*(i-currentPos[1]))
 		ctx.moveTo(0,y);
@@ -318,7 +315,7 @@ function DrawAxes(){
 		ctx.fillText(Round(i), yaxis-15, y+15);
 		ctx.stroke();
 	}
-	for(i = (-totalscale+currentPos[0]); i <= (totalscale+currentPos[0]); i+=totalscale/10){
+	for(i = (-totalscale+currentPos[0]); i <= (totalscale+currentPos[0]); i+=totalscale/20){
 		ctx.strokeStyle = "#d3d3d3";
 		x=(360+(720/scale)*(i-currentPos[0]))
 		ctx.moveTo(x,0);
@@ -329,7 +326,6 @@ function DrawAxes(){
 		ctx.stroke();
 	}
 	
-	
 	ctx.beginPath();
 	ctx.rect(yaxis, 0, 1, 720);
 	ctx.rect(0,xaxis, 720, 1);
@@ -338,7 +334,14 @@ function DrawAxes(){
 	ctx.closePath();
 }
 document.onkeydown = function move(e){
-    switch (e.keyCode) {
+    switch (e.target.tagName.toLowerCase()) {
+    case "input":
+    case "textarea":
+    case "select":
+    case "button":
+      break;
+    default:
+		switch (e.keyCode) {
         case 37:
             currentPos[0]=currentPos[0]-(0.1*scale);
 			break;
@@ -351,15 +354,17 @@ document.onkeydown = function move(e){
         case 40:
             currentPos[1]=currentPos[1]-(0.1*scale);
 			break;
-    }
+		}
+      break;
+	}
 	DrawLine();
 }
 function getScale(event){
 	var y = event.deltaY;
 	if (y > 0) {
-		scale = scale*10;
+		scale = scale*2;
 	} else {
-		scale = scale/10;
+		scale = scale/2;
 	}
 }
 function DrawLine(){
@@ -409,7 +414,7 @@ function DrawLine(){
 				ctx.fillRect( x4, y4, 1, 1 );	
 			}
 	}
-	PlotRoots();
+	FindRoots();
 }
 function ClearSpace(){
 	ctx.clearRect(0, 0, 720, 720);
