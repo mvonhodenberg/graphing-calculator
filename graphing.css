@@ -24,8 +24,7 @@ color: #444545;
   text-decoration: none;
   font-size: 24px ;
 }
-/* Change background on mouse-over */
-.topbar a:hover {
+.topbar a:hover { /* Change background on mouse-over */
   background: #B5FFE9;
   color: black;
 }
@@ -39,7 +38,7 @@ color: #444545;
   margin-right:2%;
 }
 input[type=text]{
-  padding: 10px 15px;
+  padding: 0.75%;
   margin: 10px 0;
   box-sizing: border-box;
   border-radius: 4px;
@@ -117,18 +116,23 @@ input[type="color"]::-webkit-color-swatch {
 	border-radius: 5px;
 }
 p.equationinputs {
-    width:7%;
-	display:inline-block;
-	font-style: italic;
+	padding-left:1%;
+	width:10%;
 }
-p.derivative{
+#d1,#d2,#d3,#d4{
+	width:auto;
+}
+.equationinputs {
 	display:inline-block;
 	font-style: italic;
+	font-family: "Times New Roman", sans-serif;
+	font-size: 22px ;
 }
 a.intext{
 	display: inline-block;
 	color: #444545;
 	font-weight:bold;
+	padding:0;
 }
 a:hover.intext{
 	text-decoration: underline;
@@ -165,4 +169,8 @@ td{
 }
 tr:hover{
 	background-color: #B5FFE9;
+}
+button.inlinebutton {
+    padding: 5px;
+	display: inline-block;
 }
