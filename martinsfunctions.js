@@ -75,7 +75,9 @@ function asech(x){
 function acoth(x){
 	return atanh(1/x);
 }
-
+function normal(x){
+	return((Math.E**(-1*x**2))/(Math.sqrt(Math.PI)))
+}
 function Round(x){
     if(x==0){
 		return 0
