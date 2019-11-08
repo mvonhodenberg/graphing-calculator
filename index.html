@@ -293,6 +293,9 @@ function DrawAxes(){
 		ctx.lineTo(710, xaxis+10);
 		ctx.stroke();
 	}
+	//This snippet draws the ‘arrows’ on the end of the axes. 
+	//The if conditions ensure if the user is moved off the graph so that only one axis appears,
+	//the arrows disappear to avoid visual clutter.
 	ctx.closePath();
 	ctx.beginPath();
 	totalscale=0
