@@ -422,9 +422,9 @@ function ClearSpace(){
 	ctx.fillRect(0, 0, 720, 720);
 }
 function resetZoom(){
-	scale = 10;
-	currentPos=[0,0];
-	DrawLine();
+	scale = 10; // the default scale variable
+	currentPos=[0,0]; // sets the centre of the graph to (0,0) so it is the default position
+	DrawLine(); // draws the line in order to apply the changes
 }
 document.getElementById("test").innerHTML="";
 document.getElementById("test2").innerHTML="";
