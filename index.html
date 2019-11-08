@@ -273,8 +273,8 @@ function GetSettings(){
 	updateColors()
 }
 function DrawAxes(){
-	yaxis=360+(720/scale)*(-currentPos[0]);
-	xaxis=360-(720/scale)*(-currentPos[1]);
+	yaxis=360+(720/scale)*(-currentPos[0]); // applies the standard formula to transform the axes,
+	xaxis=360-(720/scale)*(-currentPos[1]); // here in the cases where x=0 and y=0 (the axes)
 	ctx.beginPath();
 	ctx.strokeStyle = "black";
 	if (xaxis>20){
@@ -327,11 +327,11 @@ function DrawAxes(){
 	}
 	
 	ctx.beginPath();
-	ctx.rect(yaxis, 0, 1, 720);
-	ctx.rect(0,xaxis, 720, 1);
-	ctx.fillStyle = "black";
-	ctx.fill();
-	ctx.closePath();
+	ctx.rect(yaxis, 0, 1, 720); // draws a line at the position defined earlier as tall as the canvas
+	ctx.rect(0,xaxis, 720, 1); // draws a line at the position defined earlier as wide as the canvas
+	ctx.fillStyle = "black"; 
+	ctx.fill(); // tells the canvas to fill the lines
+	ctx.closePath(); // closes the canvas path and resets the fill settings
 }
 document.onkeydown = function move(e){
     switch (e.target.tagName.toLowerCase()) {
