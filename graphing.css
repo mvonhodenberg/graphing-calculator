@@ -17,9 +17,9 @@ color: #444545;
 .topbar a {
   float: left;
   display: block;
-  color: #444545;
-  text-align: center;
-  width: 33.3%;
+  color: #444545; /* My default font color */
+  text-align: center; /* Puts the text in the middle */
+  width: 33.3%; /* A third of the page */
   padding: 1% 0%;
   text-decoration: none;
   font-size: 24px ;
