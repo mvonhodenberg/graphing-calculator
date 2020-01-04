@@ -236,16 +236,36 @@ function StripText(){
 	}
 }
 function GetFunc1(x){
-    return eval(strippedfunctions[0]);
+    try{
+		return eval(strippedfunctions[0]);
+	}
+	catch(err){
+		return null
+	}
 }
 function GetFunc2(x){
-    return eval(strippedfunctions[1]);
+    try{
+		return eval(strippedfunctions[1]);
+	}
+	catch(err){
+		return null
+	}
 }
 function GetFunc3(x){
-    return eval(strippedfunctions[2]);
+    try{
+		return eval(strippedfunctions[2]);
+	}
+	catch(err){
+		return null
+	}
 }
 function GetFunc4(x){
-    return eval(strippedfunctions[3]);
+    try{
+		return eval(strippedfunctions[3]);
+	}
+	catch(err){
+		return null
+	}
 }
 function GetSettings(){
     if (gettheMode()==1){
